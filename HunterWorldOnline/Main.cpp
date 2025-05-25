@@ -15,6 +15,26 @@
 
 Database g_database;
 
+
+enum class PacketType {
+    LOGIN,
+    LOGOUT,
+    MOVE,
+    CHAT,
+    REGISTER,
+    UNKNOWN
+};
+
+PacketType GetPacketType(const std::string& msg) {
+    if (msg.rfind("LOGIN ", 0) == 0) return PacketType::LOGIN;
+    if (msg.rfind("LOGOUT", 0) == 0) return PacketType::LOGOUT;
+    if (msg.rfind("MOVE ", 0) == 0) return PacketType::MOVE;
+    if (msg.rfind("CHAT ", 0) == 0) return PacketType::CHAT;
+    if (msg.rfind("REGISTER", 0) == 0) return PacketType::REGISTER;
+    return PacketType::UNKNOWN;
+}
+
+
 struct OVERLAPPED_EX {
     OVERLAPPED overlapped;
     WSABUF wsaBuf;
@@ -27,7 +47,7 @@ struct OVERLAPPED_EX {
 void WorkerThread(HANDLE hIOCP);
 
 int main() {
-    if (!g_database.Connect("127.0.0.1", "root", "1234", "mysql", 3306)) {
+    if (!g_database.Connect("127.0.0.1", "root", "1234", "hunteronline", 3306)) {
         std::cerr << "DB 연결 실패. 서버 종료.\n";
         return 1;
     }
@@ -90,6 +110,22 @@ void WorkerThread(HANDLE hIOCP) {
 
         auto* overlappedEx = reinterpret_cast<OVERLAPPED_EX*>(lpOverlapped);
         std::cout << "받은 메시지: " << overlappedEx->buffer << std::endl;
+
+        std::string message(overlappedEx->buffer, bytesTransferred);
+
+
+        //패킷 확인해서 데이터 처리하기.
+        switch (GetPacketType(message))
+        {
+        case PacketType::LOGIN:
+            break;
+        case PacketType::LOGOUT:
+            break;
+        case PacketType::REGISTER:
+            break;
+        default:
+            std::cout << "알수없는 패킷입니다." << std::endl;
+        }
 
         // 다시 수신 대기
         DWORD flags = 0;

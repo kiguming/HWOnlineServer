@@ -61,3 +61,21 @@ void Database::FreeResult()
 		result = nullptr;
 	}
 }
+
+bool Database::LoginOK(std::string& id, std::string& password)
+{
+	if (!conn) return false;
+
+	std::string query = "SELECT * FROM account WHERE ID = '" + id + "' AND Password = '" + password + "'";
+
+	if (mysql_query(conn, query.c_str()) != 0) {
+		std::cerr << "Äõ¸® ½ÇÆÐ: " << mysql_error(conn) << std::endl;
+		return false;
+	}
+
+	MYSQL_RES* result = mysql_store_result(conn);
+	bool found = mysql_num_rows(result) > 0;
+	mysql_free_result(result);
+
+	return found;
+}

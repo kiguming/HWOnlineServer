@@ -17,6 +17,8 @@ public:
     MYSQL_RES* GetResult();
     void FreeResult();
 
+    bool LoginOK(std::string& id, std::string& password);
+
 private:
     MYSQL* conn;
     MYSQL_RES* result;
